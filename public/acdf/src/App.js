@@ -1,35 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import Login from "./Login/Login";
-import logo from "./logo.svg";
+import Appbar from "./Components/Appbar";
+import axios from "axios";
+import "fontsource-roboto";
 import "./App.css";
 
-function App() {
-  return (
-    <Router>
-      <div className="App">
-        <header className="App-header">
-          <p>Aplicacion para el control digital y formatos del DSC</p>
-          <nav>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Link to="/login">Iniciar sesión</Link>
-            
-          </a>
-          </nav>
-        </header>
+function Main(props) {
+  const isLoggedIn = props.isLoggedIn;
+  if (isLoggedIn) {
+    return <Appbar/>;
+  }
+  return <Login />;
+}
 
-        <Switch>
-          <Route path="/login">
-            <Login />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
+function App() {
+  const [jwt, setJwt] = useState("");
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => {
+    setJwt(window.localStorage.getItem("_token"));
+    console.log(jwt)
+    axios
+      .get("http://127.0.0.1:3000/getUser", {params: { token: jwt }})
+      .then((response) => {
+        console.log(response);
+        setLoggedIn(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoggedIn(false);
+      });
+  });
+
+  return (
+   <Main isLoggedIn={loggedIn}></Main>
   );
 }
 
